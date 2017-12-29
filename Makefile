@@ -5,7 +5,7 @@ ARCH:=$(shell docker info --format '{{.Architecture}}')
 all: go
 
 push:
-	docker push $(ORG)/$(ARCH)-golang:1.9.2-alpine3.6 -f Dockerfile.golang .
+	docker push $(ORG)/$(ARCH)-golang:1.9.2-alpine3.6
 	docker push $(ORG)/$(ARCH)-node:7.10-alpine
 
 
