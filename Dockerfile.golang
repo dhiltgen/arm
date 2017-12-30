@@ -1,14 +1,19 @@
-FROM alpine:3.6
+FROM alpine:3.6 as builder
 
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin
-RUN apk -v add --update binutils gcc curl bash linux-headers musl-dev make && \
-    curl -L https://storage.googleapis.com/golang/go1.4-bootstrap-20170531.tar.gz > /tmp/go.tgz && \
-    mkdir -p /root/go1.4 ; tar -C /root/go1.4 -zxvf /tmp/go.tgz --strip-components=1 && rm /tmp/go.tgz && \
-     cd /root/go1.4/src && ./make.bash && \
-    curl -L https://storage.googleapis.com/golang/go1.9.2.src.tar.gz > /tmp/go.tgz && \
-    tar -C / -zxvf /tmp/go.tgz && rm /tmp/go.tgz && \
-    cd /go/src && ./make.bash && \
-    rm -rf /root/go1.4 && \
+RUN apk -v add --update binutils gcc curl bash linux-headers musl-dev make git
+RUN curl -L https://storage.googleapis.com/golang/go1.4-bootstrap-20170531.tar.gz > /tmp/go.tgz
+RUN mkdir -p /root/go1.4 ; tar -C /root/go1.4 -zxvf /tmp/go.tgz --strip-components=1
+RUN cd /root/go1.4/src && ./make.bash
+RUN curl -L https://storage.googleapis.com/golang/go1.9.2.src.tar.gz > /tmp/go.tgz
+RUN tar -C / -zxvf /tmp/go.tgz
+RUN cd /go/src && ./make.bash
+RUN rm -rf /go/pkg/bootstrap
+
+FROM alpine:3.6
+COPY --from=builder /go /go
+RUN apk -v add --update curl bash musl-dev make git && \
     rm -rf /var/cache/apk/*
-ENV GOROOT=/go
+
+ENV PATH=/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+WORKDIR /go
 ENV GOPATH=/go

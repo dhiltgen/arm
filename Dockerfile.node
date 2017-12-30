@@ -1,8 +1,8 @@
-FROM alpine:3.6
+FROM alpine:3.6 as builder
 
 RUN apk -v add --update curl gcc g++ python make linux-headers
 RUN mkdir /tmp/node; curl -L https://nodejs.org/dist/v7.10.1/node-v7.10.1.tar.gz | tar -xzf - -C /tmp/node --strip-components=1 && \
-    cd /tmp/node&& ./configure && make -j 2 && make install && rm -rf /tmp/node
+    cd /tmp/node&& ./configure && make && make install && rm -rf /tmp/node
 RUN ln -s /usr/local/bin/node /usr/local/bin/nodejs
 RUN mkdir -p /opt/yarn; curl -L https://yarnpkg.com/downloads/0.24.4/yarn-v0.24.4.tar.gz | tar -xzf - -C /opt/yarn --strip-components=1
 RUN ln -s /opt/yarn/bin/yarn /usr/local/bin/yarn \
